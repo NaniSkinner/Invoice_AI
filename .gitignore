@@ -1,0 +1,43 @@
+# Backend (Spring Boot)
+backend/target/
+backend/.env
+backend/*.log
+backend/.DS_Store
+backend/.idea/
+backend/*.iml
+
+# Frontend (Next.js)
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+frontend/.env.local
+frontend/.env.production.local
+frontend/.DS_Store
+frontend/.idea/
+frontend/bun.lockb
+
+# Database
+database/*.sql.bak
+database/temp/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local

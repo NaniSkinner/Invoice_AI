@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(java -version:*)",
+      "Bash(node:*)",
+      "Bash(bun --version:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
