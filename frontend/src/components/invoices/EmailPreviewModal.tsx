@@ -59,8 +59,10 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
           <div className="border-2 border-gray-300 rounded-lg overflow-hidden">
             <div className="bg-white p-8">
               {/* Email Header */}
-              <div className="border-b-4 border-blue-600 pb-6 mb-6">
-                <h1 className="text-3xl font-bold text-gray-900">InvoiceMe</h1>
+              <div className="border-b-4 border-primary-600 pb-6 mb-6">
+                <h1 className="text-3xl font-bold text-gray-900">
+                  <span className="text-primary-600">Invoice</span>Me
+                </h1>
                 <p className="text-sm text-gray-600 mt-1">Professional Invoicing System</p>
               </div>
 
@@ -125,9 +127,9 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
                       <td colSpan={3} className="py-2 px-4 text-right font-semibold text-gray-700">Tax:</td>
                       <td className="py-2 px-4 text-right text-gray-900">{formatCurrency(invoice.taxAmount)}</td>
                     </tr>
-                    <tr className="bg-blue-50 border-t-2 border-gray-300">
+                    <tr className="bg-primary-50 border-t-2 border-gray-300">
                       <td colSpan={3} className="py-3 px-4 text-right font-bold text-gray-900 text-lg">Total Amount:</td>
-                      <td className="py-3 px-4 text-right font-bold text-green-600 text-xl">{formatCurrency(invoice.totalAmount)}</td>
+                      <td className="py-3 px-4 text-right font-bold text-primary-600 text-xl">{formatCurrency(invoice.totalAmount)}</td>
                     </tr>
                   </tfoot>
                 </table>
@@ -135,19 +137,19 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
 
               {/* Payment Link */}
               {paymentUrl && (
-                <div className="bg-blue-50 border-2 border-blue-200 rounded-lg p-6 mb-6">
-                  <h3 className="text-lg font-semibold text-blue-900 mb-2">Pay Online</h3>
+                <div className="bg-primary-50 border-2 border-primary-200 rounded-lg p-6 mb-6">
+                  <h3 className="text-lg font-semibold text-primary-900 mb-2">Pay Online</h3>
                   <p className="text-gray-700 mb-4">Click the button below to pay this invoice securely online:</p>
                   <a
                     href={paymentUrl}
-                    className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors"
+                    className="inline-block bg-primary-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-primary-700 transition-colors"
                     target="_blank"
                     rel="noopener noreferrer"
                   >
                     Pay Invoice Now
                   </a>
                   <p className="text-sm text-gray-600 mt-3">
-                    Payment Link: <span className="font-mono text-blue-600">{paymentUrl}</span>
+                    Payment Link: <span className="font-mono text-primary-600">{paymentUrl}</span>
                   </p>
                 </div>
               )}
@@ -196,7 +198,7 @@ export const EmailPreviewModal: React.FC<EmailPreviewModalProps> = ({
             <button
               onClick={onConfirmSend}
               disabled={isLoading}
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-semibold disabled:bg-blue-400 disabled:cursor-not-allowed flex items-center space-x-2"
+              className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 font-semibold disabled:bg-primary-400 disabled:cursor-not-allowed flex items-center space-x-2"
             >
               {isLoading ? (
                 <>

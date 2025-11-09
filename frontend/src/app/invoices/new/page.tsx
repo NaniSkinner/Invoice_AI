@@ -32,17 +32,15 @@ export default function NewInvoicePage() {
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">New Invoice</h1>
+      <div className="max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-900 mb-6">Create Invoice</h1>
 
-        <Card>
-          <InvoiceForm
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isLoading={isLoading}
-            preselectedCustomerId={customerId}
-          />
-        </Card>
+        <InvoiceForm
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isLoading={isLoading}
+          preselectedCustomerId={customerId}
+        />
       </div>
     </AppLayout>
   );

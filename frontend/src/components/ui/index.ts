@@ -11,3 +11,4 @@ export * from './Badge';
 export * from './Modal';
 export * from './Loading';
 export * from './CircularProgress';
+export * from './Avatar';

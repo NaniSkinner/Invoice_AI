@@ -74,17 +74,15 @@ export default function EditInvoicePage() {
 
   return (
     <AppLayout>
-      <div className="max-w-5xl mx-auto">
+      <div className="max-w-7xl mx-auto">
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Invoice {invoice.invoiceNumber}</h1>
 
-        <Card>
-          <InvoiceForm
-            invoice={invoice}
-            onSubmit={handleSubmit}
-            onCancel={handleCancel}
-            isLoading={isSaving}
-          />
-        </Card>
+        <InvoiceForm
+          invoice={invoice}
+          onSubmit={handleSubmit}
+          onCancel={handleCancel}
+          isLoading={isSaving}
+        />
       </div>
     </AppLayout>
   );

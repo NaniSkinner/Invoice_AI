@@ -1,13 +1,16 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { invoiceSchema } from '@/lib/validation';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
+import { EmailPreviewModal } from './EmailPreviewModal';
 import { getAllCustomers } from '@/lib/api/customers';
+import { sendInvoice } from '@/lib/api/invoices';
 import { CustomerDto } from '@/types/customer';
 import { InvoiceDto } from '@/types/invoice';
 import { formatCurrency, formatDateForInput } from '@/lib/format';
@@ -43,11 +46,14 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   isLoading = false,
   preselectedCustomerId,
 }) => {
+  const router = useRouter();
   const [customers, setCustomers] = useState<CustomerDto[]>([]);
   const [subtotal, setSubtotal] = useState(0);
   const [taxRate] = useState(0.1); // 10% tax
   const [taxAmount, setTaxAmount] = useState(0);
   const [total, setTotal] = useState(0);
+  const [showEmailModal, setShowEmailModal] = useState(false);
+  const [isSending, setIsSending] = useState(false);
 
   const {
     register,
@@ -114,159 +120,129 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
   }, [lineItems, taxRate]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-      {/* Customer & Dates */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+    <form onSubmit={handleSubmit(onSubmit)} className="flex gap-6">
+      {/* Left Side - Form Fields */}
+      <div className="flex-1 bg-white rounded-card shadow-card p-6 space-y-6">
+        {/* Invoice Number & Date */}
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Invoice Number"
+            value={invoice?.invoiceNumber || "Auto-generated"}
+            disabled
+            className="bg-gray-50"
+          />
+          <Input
+            label="Date"
+            type="date"
+            {...register('issueDate')}
+            error={errors.issueDate?.message}
+            required
+          />
+        </div>
+
+        {/* Client */}
         <Select
-          label="Customer"
+          label="Client"
           {...register('customerId')}
           error={errors.customerId?.message}
           options={customers.map((c) => ({ value: c.id, label: c.businessName }))}
           required
-          disabled={!!invoice} // Can't change customer on existing invoice
+          disabled={!!invoice}
         />
 
+        {/* Company Name - Read only from selected customer */}
         <Input
-          label="Issue Date"
-          type="date"
-          {...register('issueDate')}
-          error={errors.issueDate?.message}
-          required
+          label="Company Name"
+          value={customers.find(c => c.id === watch('customerId'))?.businessName || ''}
+          disabled
+          className="bg-gray-50"
         />
 
-        <Input
-          label="Due Date"
-          type="date"
-          {...register('dueDate')}
-          error={errors.dueDate?.message}
-          required
-        />
-      </div>
-
-      {/* Line Items */}
-      <div className="space-y-4">
-        <div className="flex justify-between items-center">
-          <h3 className="text-lg font-semibold">Line Items</h3>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => append({ description: '', quantity: 1, unitPrice: 0 })}
-          >
-            Add Item
-          </Button>
-        </div>
-
-        {/* Column Headers */}
-        <div className="flex gap-3 items-center">
-          <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-700">Item</label>
-          </div>
-          <div className="w-24">
-            <label className="block text-sm font-medium text-gray-700">Qty</label>
-          </div>
-          <div className="w-32">
-            <label className="block text-sm font-medium text-gray-700">Unit Price</label>
-          </div>
-          {fields.length > 1 && (
-            <div className="w-20">
-              {/* Spacer for remove button */}
-            </div>
-          )}
-        </div>
-
-        <div className="space-y-3">
-          {fields.map((field, index) => (
-            <div key={field.id} className="flex gap-3 items-start">
-              <div className="flex-1">
-                <Input
-                  {...register(`lineItems.${index}.description`)}
-                  error={errors.lineItems?.[index]?.description?.message}
-                  placeholder="Description"
-                />
-              </div>
-              <div className="w-24">
-                <Input
-                  type="number"
-                  step="1"
-                  {...register(`lineItems.${index}.quantity`, { valueAsNumber: true })}
-                  error={errors.lineItems?.[index]?.quantity?.message}
-                  placeholder="Qty"
-                />
-              </div>
-              <div className="w-32">
-                <div className="relative">
-                  <span className="absolute left-3 top-2 text-gray-400 pointer-events-none">$</span>
-                  <Input
-                    type="text"
-                    {...register(`lineItems.${index}.unitPrice`, {
-                      valueAsNumber: true,
-                      setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0
-                    })}
-                    error={errors.lineItems?.[index]?.unitPrice?.message}
-                    placeholder="0.00"
-                    className="pl-7"
-                    onKeyPress={(e) => {
-                      // Only allow numbers and decimal point
-                      if (!/[0-9.]/.test(e.key)) {
-                        e.preventDefault();
-                      }
-                    }}
-                  />
-                </div>
-              </div>
-              {fields.length > 1 && (
-                <Button
-                  type="button"
-                  variant="danger"
-                  size="sm"
-                  onClick={() => remove(index)}
-                >
-                  Remove
-                </Button>
-              )}
-            </div>
-          ))}
-        </div>
-
-        {/* Totals */}
-        <div className="border-t pt-4 space-y-2">
-          <div className="flex justify-between text-sm">
-            <span className="font-medium">Subtotal:</span>
-            <span>{formatCurrency(subtotal)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="font-medium">Tax (10%):</span>
-            <span>{formatCurrency(taxAmount)}</span>
-          </div>
-          <div className="flex justify-between text-lg font-bold border-t pt-2">
-            <span>Total:</span>
-            <span>{formatCurrency(total)}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Additional Options */}
-      <div className="space-y-4">
-        <div className="flex items-center">
-          <input
-            type="checkbox"
-            id="allowsPartialPayment"
-            {...register('allowsPartialPayment')}
-            className="h-4 w-4 rounded border-gray-300"
+        {/* Company Address - Read only from selected customer */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Company Address</label>
+          <textarea
+            value={(() => {
+              const customer = customers.find(c => c.id === watch('customerId'));
+              if (!customer) return '';
+              const addr = customer.billingAddress;
+              return `${addr.street}\n${addr.city}, ${addr.state} ${addr.postalCode}\n${addr.country}`;
+            })()}
+            disabled
+            rows={3}
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-600 focus:outline-none"
           />
-          <label htmlFor="allowsPartialPayment" className="ml-2 text-sm text-gray-700">
-            Allow partial payments
-          </label>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Company Email - Read only from selected customer */}
+        <Input
+          label="Company Email"
+          value={customers.find(c => c.id === watch('customerId'))?.email || ''}
+          disabled
+          className="bg-gray-50"
+        />
+
+        {/* Service Name & Details (similar to line items but simplified) */}
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Service Name"
+            {...register('lineItems.0.description')}
+            error={errors.lineItems?.[0]?.description?.message}
+            placeholder="Web Design and Development"
+          />
+          <Select
+            label="Service Details"
+            options={[
+              { value: 'web-development', label: 'Web Development' },
+              { value: 'design', label: 'Design' },
+              { value: 'consulting', label: 'Consulting' },
+              { value: 'maintenance', label: 'Maintenance' },
+            ]}
+          />
+        </div>
+
+        {/* Due Date & Subtotal */}
+        <div className="grid grid-cols-2 gap-4">
+          <Input
+            label="Due Date"
+            type="date"
+            {...register('dueDate')}
+            error={errors.dueDate?.message}
+            required
+          />
+          <Input
+            label="Subtotal"
+            type="number"
+            step="0.01"
+            {...register('lineItems.0.unitPrice', { valueAsNumber: true })}
+            error={errors.lineItems?.[0]?.unitPrice?.message}
+            placeholder="0.0"
+          />
+        </div>
+
+        {/* Hidden quantity field (default to 1) */}
+        <input type="hidden" {...register('lineItems.0.quantity')} value={1} />
+
+        {/* Additional Options */}
+        <div className="space-y-4 pt-4 border-t border-gray-100">
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="allowsPartialPayment"
+              {...register('allowsPartialPayment')}
+              className="h-4 w-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+            />
+            <label htmlFor="allowsPartialPayment" className="ml-2 text-sm text-gray-700">
+              Allow partial payments
+            </label>
+          </div>
+
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">Notes</label>
             <textarea
               {...register('notes')}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
               placeholder="Internal notes..."
             />
           </div>
@@ -276,22 +252,78 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
             <textarea
               {...register('terms')}
               rows={3}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
               placeholder="Payment terms..."
             />
           </div>
         </div>
       </div>
 
-      {/* Form Actions */}
-      <div className="flex justify-end space-x-4">
-        <Button type="button" variant="outline" onClick={onCancel}>
-          Cancel
+      {/* Right Side - Action Buttons */}
+      <div className="w-64 space-y-3">
+        <Button
+          type="submit"
+          variant="primary"
+          className="w-full justify-center"
+          isLoading={isLoading}
+        >
+          <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-3m-1 4l-3 3m0 0l-3-3m3 3V4" />
+          </svg>
+          Save as Draft
         </Button>
-        <Button type="submit" isLoading={isLoading}>
-          {invoice ? 'Update Invoice' : 'Create Invoice'}
-        </Button>
+
+        {invoice && invoice.status === 'DRAFT' && (
+          <Button
+            type="button"
+            variant="success"
+            className="w-full justify-center"
+            onClick={() => setShowEmailModal(true)}
+          >
+            <svg className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+            </svg>
+            Send Invoice
+          </Button>
+        )}
+
+        <div className="pt-3 border-t border-gray-200">
+          <Button
+            type="button"
+            variant="outline"
+            className="w-full justify-center text-gray-600"
+            onClick={onCancel}
+          >
+            Cancel
+          </Button>
+        </div>
       </div>
+
+      {/* Email Preview Modal */}
+      {invoice && showEmailModal && (
+        <EmailPreviewModal
+          isOpen={showEmailModal}
+          onClose={() => setShowEmailModal(false)}
+          onConfirmSend={async () => {
+            try {
+              setIsSending(true);
+              await sendInvoice(invoice.id);
+              setShowEmailModal(false);
+              router.push('/invoices');
+            } catch (error) {
+              console.error('Error sending invoice:', error);
+              alert('Failed to send invoice. Please try again.');
+            } finally {
+              setIsSending(false);
+            }
+          }}
+          onEdit={() => {
+            setShowEmailModal(false);
+          }}
+          invoice={invoice}
+          isLoading={isSending}
+        />
+      )}
     </form>
   );
 };
