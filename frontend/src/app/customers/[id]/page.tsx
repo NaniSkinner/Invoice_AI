@@ -29,12 +29,10 @@ export default function CustomerDetailPage() {
     const fetchData = async () => {
       try {
         setIsLoading(true);
-        const [customerData, invoicesData] = await Promise.all([
-          getCustomerById(id),
-          getInvoicesByCustomer(id),
-        ]);
+        const customerData = await getCustomerById(id);
         setCustomer(customerData);
-        setInvoices(invoicesData);
+        // TODO: Implement backend endpoint GET /api/invoices/customer/{id} to fetch customer invoices
+        setInvoices([]);
       } catch (error) {
         console.error('Error fetching customer:', error);
         alert('Failed to load customer details.');
