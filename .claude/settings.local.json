@@ -3,7 +3,8 @@
     "allow": [
       "Bash(java -version:*)",
       "Bash(node:*)",
-      "Bash(bun --version:*)"
+      "Bash(bun --version:*)",
+      "Bash(mvn clean compile:*)"
     ],
     "deny": [],
     "ask": []

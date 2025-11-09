@@ -37,7 +37,12 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 
-# Environment variables
+# Environment variables & API Keys
 .env
 .env.local
 .env.*.local
+
+# OpenAI API Keys (in case accidentally placed in other files)
+*openai*.key
+*OPENAI_API_KEY*
+*.openai
