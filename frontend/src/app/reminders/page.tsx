@@ -1,31 +1,43 @@
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { AppLayout } from '@/components/AppLayout';
-import { Card } from '@/components/ui/Card';
-import { Table } from '@/components/ui/Table';
-import { Button } from '@/components/ui/Button';
-import { Badge } from '@/components/ui/Badge';
-import { Loading } from '@/components/ui/Loading';
-import { ReminderEmailPreviewModal } from '@/components/invoices/ReminderEmailPreviewModal';
-import { SuccessModal } from '@/components/ui/SuccessModal';
-import { getOverdueInvoices, sendReminder } from '@/lib/api/reminders';
-import { getInvoiceById } from '@/lib/api/invoices';
-import { OverdueInvoiceDto, ReminderType } from '@/types/reminder';
-import { InvoiceDto } from '@/types/invoice';
-import { formatDate, formatCurrency, calculateDaysUntil } from '@/lib/format';
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { AppLayout } from "@/components/AppLayout";
+import { Card } from "@/components/ui/Card";
+import { Table } from "@/components/ui/Table";
+import { Button } from "@/components/ui/Button";
+import { Badge } from "@/components/ui/Badge";
+import { Loading } from "@/components/ui/Loading";
+import { ReminderEmailPreviewModal } from "@/components/invoices/ReminderEmailPreviewModal";
+import { SuccessModal } from "@/components/ui/SuccessModal";
+import { getOverdueInvoices, sendReminder } from "@/lib/api/reminders";
+import { getInvoiceById } from "@/lib/api/invoices";
+import { OverdueInvoiceDto, ReminderType } from "@/types/reminder";
+import { InvoiceDto } from "@/types/invoice";
+import { formatDate, formatCurrency, calculateDaysUntil } from "@/lib/format";
 
 export default function RemindersPage() {
   const router = useRouter();
-  const [overdueInvoices, setOverdueInvoices] = useState<OverdueInvoiceDto[]>([]);
+  const [overdueInvoices, setOverdueInvoices] = useState<OverdueInvoiceDto[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
-  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceDto | null>(null);
-  const [isReminderEmailPreviewOpen, setIsReminderEmailPreviewOpen] = useState(false);
-  const [selectedReminderType, setSelectedReminderType] = useState<ReminderType>('ON_DUE_DATE');
+  const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(
+    null
+  );
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceDto | null>(
+    null
+  );
+  const [isReminderEmailPreviewOpen, setIsReminderEmailPreviewOpen] =
+    useState(false);
+  const [selectedReminderType, setSelectedReminderType] =
+    useState<ReminderType>("ON_DUE_DATE");
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
-  const [successMessage, setSuccessMessage] = useState({ title: '', message: '', details: '' });
+  const [successMessage, setSuccessMessage] = useState({
+    title: "",
+    message: "",
+    details: "",
+  });
   const [isSending, setIsSending] = useState(false);
 
   const fetchOverdueInvoices = async () => {
@@ -34,7 +46,7 @@ export default function RemindersPage() {
       const data = await getOverdueInvoices();
       setOverdueInvoices(data);
     } catch (error) {
-      console.error('Error fetching overdue invoices:', error);
+      console.error("Error fetching overdue invoices:", error);
     } finally {
       setIsLoading(false);
     }
@@ -46,10 +58,10 @@ export default function RemindersPage() {
 
   // Determine appropriate reminder type based on days overdue
   const getReminderTypeForDaysOverdue = (daysOverdue: number): ReminderType => {
-    if (daysOverdue >= 30) return 'OVERDUE_30_DAYS';
-    if (daysOverdue >= 14) return 'OVERDUE_14_DAYS';
-    if (daysOverdue >= 7) return 'OVERDUE_7_DAYS';
-    return 'ON_DUE_DATE';
+    if (daysOverdue >= 30) return "OVERDUE_30_DAYS";
+    if (daysOverdue >= 14) return "OVERDUE_14_DAYS";
+    if (daysOverdue >= 7) return "OVERDUE_7_DAYS";
+    return "ON_DUE_DATE";
   };
 
   const handleSendReminder = async (invoiceId: string, daysOverdue: number) => {
@@ -65,8 +77,8 @@ export default function RemindersPage() {
       // Go directly to email preview
       setIsReminderEmailPreviewOpen(true);
     } catch (error) {
-      console.error('Error fetching invoice:', error);
-      alert('Failed to load invoice details.');
+      console.error("Error fetching invoice:", error);
+      alert("Failed to load invoice details.");
     }
   };
 
@@ -75,18 +87,21 @@ export default function RemindersPage() {
 
     try {
       setIsSending(true);
-      await sendReminder({ invoiceId: selectedInvoiceId, reminderType: selectedReminderType });
+      await sendReminder({
+        invoiceId: selectedInvoiceId,
+        reminderType: selectedReminderType,
+      });
       await fetchOverdueInvoices();
       setIsReminderEmailPreviewOpen(false);
       setSuccessMessage({
-        title: 'Reminder Sent Successfully!',
+        title: "Reminder Sent Successfully!",
         message: `Payment reminder has been sent to ${selectedInvoice?.customerName}.`,
-        details: `The reminder email has been delivered to ${selectedInvoice?.customerEmail}. The customer has been notified about the payment status.`
+        details: `The reminder email has been delivered to ${selectedInvoice?.customerEmail}. The customer has been notified about the payment status.`,
       });
       setIsSuccessModalOpen(true);
     } catch (error) {
-      console.error('Error sending reminder:', error);
-      alert('Failed to send reminder.');
+      console.error("Error sending reminder:", error);
+      alert("Failed to send reminder.");
     } finally {
       setIsSending(false);
     }
@@ -119,7 +134,9 @@ export default function RemindersPage() {
         <div className="flex justify-between items-center">
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Reminders</h1>
-            <p className="text-gray-600 mt-1">Manage overdue invoices and send payment reminders</p>
+            <p className="text-gray-600 mt-1">
+              Manage overdue invoices and send payment reminders
+            </p>
           </div>
         </div>
 
@@ -141,8 +158,12 @@ export default function RemindersPage() {
                   />
                 </svg>
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">No Overdue Invoices</h3>
-              <p className="text-gray-600">All invoices are up to date. Great job!</p>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                No Overdue Invoices
+              </h3>
+              <p className="text-gray-600">
+                All invoices are up to date. Great job!
+              </p>
             </div>
           </Card>
         ) : (
@@ -153,22 +174,30 @@ export default function RemindersPage() {
             <Table
               data={overdueInvoices}
               columns={[
-                { header: 'Invoice #', accessor: 'invoiceNumber' },
-                { header: 'Customer', accessor: 'customerName' },
-                { header: 'Due Date', accessor: (row) => formatDate(row.dueDate) },
+                { header: "Invoice #", accessor: "invoiceNumber" },
+                { header: "Customer", accessor: "customerName" },
                 {
-                  header: 'Days Overdue',
+                  header: "Due Date",
+                  accessor: (row) => formatDate(row.dueDate),
+                },
+                {
+                  header: "Days Overdue",
                   accessor: (row) => (
-                    <span className="font-semibold text-red-600">{row.daysOverdue} days</span>
+                    <span className="font-semibold text-red-600">
+                      {row.daysOverdue} days
+                    </span>
                   ),
                 },
-                { header: 'Balance Due', accessor: (row) => formatCurrency(row.balanceRemaining) },
                 {
-                  header: 'Severity',
+                  header: "Balance Due",
+                  accessor: (row) => formatCurrency(row.balanceRemaining),
+                },
+                {
+                  header: "Severity",
                   accessor: (row) => getSeverityBadge(row.daysOverdue),
                 },
                 {
-                  header: 'Actions',
+                  header: "Actions",
                   accessor: (row) => (
                     <div className="flex space-x-2">
                       <Button
@@ -205,17 +234,26 @@ export default function RemindersPage() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <Card>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-600">Total Overdue</span>
-                <span className="text-3xl font-bold text-red-600 mt-2">{overdueInvoices.length}</span>
+                <span className="text-sm font-medium text-gray-600">
+                  Total Overdue
+                </span>
+                <span className="text-3xl font-bold text-red-600 mt-2">
+                  {overdueInvoices.length}
+                </span>
               </div>
             </Card>
 
             <Card>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-600">Total Amount</span>
+                <span className="text-sm font-medium text-gray-600">
+                  Total Amount
+                </span>
                 <span className="text-3xl font-bold text-red-600 mt-2">
                   {formatCurrency(
-                    overdueInvoices.reduce((sum, inv) => sum + inv.balanceRemaining, 0)
+                    overdueInvoices.reduce(
+                      (sum, inv) => sum + inv.balanceRemaining,
+                      0
+                    )
                   )}
                 </span>
               </div>
@@ -223,7 +261,9 @@ export default function RemindersPage() {
 
             <Card>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-600">7+ Days Overdue</span>
+                <span className="text-sm font-medium text-gray-600">
+                  7+ Days Overdue
+                </span>
                 <span className="text-3xl font-bold text-amber-600 mt-2">
                   {overdueInvoices.filter((inv) => inv.daysOverdue >= 7).length}
                 </span>
@@ -232,9 +272,14 @@ export default function RemindersPage() {
 
             <Card>
               <div className="flex flex-col">
-                <span className="text-sm font-medium text-gray-600">30+ Days Overdue</span>
+                <span className="text-sm font-medium text-gray-600">
+                  30+ Days Overdue
+                </span>
                 <span className="text-3xl font-bold text-red-700 mt-2">
-                  {overdueInvoices.filter((inv) => inv.daysOverdue >= 30).length}
+                  {
+                    overdueInvoices.filter((inv) => inv.daysOverdue >= 30)
+                      .length
+                  }
                 </span>
               </div>
             </Card>
