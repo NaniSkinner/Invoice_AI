@@ -5,7 +5,10 @@
       "Bash(node:*)",
       "Bash(bun --version:*)",
       "Bash(mvn clean compile:*)",
-      "Bash(curl:*)"
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(tree:*)",
+      "Bash(mvn spring-boot:run:*)"
     ],
     "deny": [],
     "ask": []
