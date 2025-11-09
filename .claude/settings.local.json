@@ -8,7 +8,8 @@
       "Bash(curl:*)",
       "Bash(find:*)",
       "Bash(tree:*)",
-      "Bash(mvn spring-boot:run:*)"
+      "Bash(mvn spring-boot:run:*)",
+      "Bash(python3:*)"
     ],
     "deny": [],
     "ask": []
