@@ -32,14 +32,20 @@ axiosInstance.interceptors.request.use(
 
 /**
  * Handle 401 errors by redirecting to login
+ * Only redirects if currently not on login page to avoid redirect loops
  */
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401 && typeof window !== 'undefined') {
-      localStorage.removeItem('auth_credentials');
-      localStorage.removeItem('user_info');
-      window.location.href = '/login';
+      // Only redirect to login if we're not already on the login page
+      // This prevents logout loops and allows proper error handling on protected pages
+      const currentPath = window.location.pathname;
+      if (currentPath !== '/login') {
+        localStorage.removeItem('auth_credentials');
+        localStorage.removeItem('user_info');
+        window.location.href = '/login';
+      }
     }
     return Promise.reject(error);
   }

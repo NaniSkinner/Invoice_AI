@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { AppLayout } from '@/components/AppLayout';
 import { Card } from '@/components/ui/Card';
 import { Badge, getInvoiceStatusBadgeVariant } from '@/components/ui/Badge';
@@ -17,6 +18,7 @@ import { OverdueInvoiceDto } from '@/types/reminder';
 import { formatCurrency, formatDate, formatInvoiceStatus } from '@/lib/format';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [invoices, setInvoices] = useState<InvoiceDto[]>([]);
   const [payments, setPayments] = useState<PaymentDto[]>([]);
   const [overdueInvoices, setOverdueInvoices] = useState<OverdueInvoiceDto[]>([]);
@@ -159,7 +161,7 @@ export default function DashboardPage() {
                 ),
               },
             ]}
-            onRowClick={(invoice) => (window.location.href = `/invoices/${invoice.id}`)}
+            onRowClick={(invoice) => router.push(`/invoices/${invoice.id}`)}
             emptyMessage="No invoices yet. Create your first invoice!"
           />
         </Card>
