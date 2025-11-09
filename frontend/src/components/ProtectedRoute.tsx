@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { Loading } from '@/components/ui/Loading';
@@ -12,14 +12,25 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
+  const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    // Give auth state time to initialize from localStorage
+    const timer = setTimeout(() => {
+      setIsInitializing(false);
+    }, 100);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    // Only redirect after initialization is complete
+    if (!isInitializing && !isAuthenticated) {
       router.push('/login');
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, isInitializing, router]);
 
-  if (!isAuthenticated) {
+  if (isInitializing || !isAuthenticated) {
     return <Loading fullScreen text="Checking authentication..." />;
   }
 

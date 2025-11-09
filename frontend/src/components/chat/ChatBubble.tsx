@@ -15,7 +15,7 @@ export default function ChatBubble() {
   return (
     <button
       onClick={toggleChat}
-      className={`fixed bottom-6 right-6 z-50 rounded-full bg-blue-600 p-4 text-white shadow-lg transition-all hover:bg-blue-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-blue-300 ${
+      className={`fixed bottom-6 right-6 z-50 rounded-full bg-primary-600 p-4 text-white shadow-lg transition-all hover:bg-primary-700 hover:shadow-xl focus:outline-none focus:ring-4 focus:ring-primary-300 ${
         isOpen ? 'scale-90' : 'scale-100'
       }`}
       aria-label="Toggle chat"

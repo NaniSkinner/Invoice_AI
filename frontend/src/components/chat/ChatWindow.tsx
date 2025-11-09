@@ -118,9 +118,9 @@ export default function ChatWindow() {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed bottom-24 right-6 z-50 flex h-[600px] w-[400px] flex-col rounded-lg bg-white shadow-2xl">
+    <div className="fixed bottom-24 right-6 z-50 flex h-[600px] w-[400px] flex-col rounded-card bg-white shadow-2xl border border-gray-100">
       {/* Header */}
-      <div className="flex items-center justify-between rounded-t-lg bg-blue-600 px-4 py-3 text-white">
+      <div className="flex items-center justify-between rounded-t-card bg-primary-600 px-4 py-3 text-white">
         <div className="flex items-center space-x-2">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -140,7 +140,7 @@ export default function ChatWindow() {
         </div>
         <button
           onClick={toggleChat}
-          className="rounded-full p-1 hover:bg-blue-700 focus:outline-none"
+          className="rounded-full p-1 hover:bg-primary-700 focus:outline-none transition-colors"
           aria-label="Close chat"
         >
           <svg
@@ -156,7 +156,7 @@ export default function ChatWindow() {
       </div>
 
       {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto bg-gray-50 p-4">
+      <div className="flex-1 overflow-y-auto bg-sage-50 p-4">
         <div className="space-y-4">
           {messages.map((message) => (
             <div
@@ -166,8 +166,8 @@ export default function ChatWindow() {
               <div
                 className={`max-w-[80%] rounded-lg px-4 py-2 ${
                   message.sender === 'user'
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-white text-gray-800 shadow-sm'
+                    ? 'bg-primary-600 text-white'
+                    : 'bg-white text-gray-800 shadow-sm border border-gray-100'
                 }`}
               >
                 <p className="whitespace-pre-wrap text-sm">{message.content}</p>
@@ -181,11 +181,11 @@ export default function ChatWindow() {
           {/* Loading indicator */}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="rounded-lg bg-white px-4 py-2 shadow-sm">
+              <div className="rounded-lg bg-white px-4 py-2 shadow-sm border border-gray-100">
                 <div className="flex space-x-2">
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400"></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 delay-75"></div>
-                  <div className="h-2 w-2 animate-bounce rounded-full bg-gray-400 delay-150"></div>
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-primary-400"></div>
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-primary-400 delay-75"></div>
+                  <div className="h-2 w-2 animate-bounce rounded-full bg-primary-400 delay-150"></div>
                 </div>
               </div>
             </div>
@@ -197,14 +197,14 @@ export default function ChatWindow() {
 
       {/* Suggestions */}
       {suggestions.length > 0 && !isLoading && (
-        <div className="border-t border-gray-200 bg-white p-2">
-          <p className="mb-2 px-2 text-xs font-medium text-gray-500">Suggested questions:</p>
+        <div className="border-t border-gray-100 bg-white p-2">
+          <p className="mb-2 px-2 text-xs font-medium text-gray-600">Suggested questions:</p>
           <div className="flex flex-wrap gap-2">
             {suggestions.map((suggestion, index) => (
               <button
                 key={index}
                 onClick={() => handleSuggestionClick(suggestion)}
-                className="rounded-full bg-blue-100 px-3 py-1 text-xs text-blue-700 transition hover:bg-blue-200"
+                className="rounded-full bg-primary-50 px-3 py-1 text-xs text-primary-700 transition hover:bg-primary-100 border border-primary-200"
               >
                 {suggestion}
               </button>
@@ -214,7 +214,7 @@ export default function ChatWindow() {
       )}
 
       {/* Input Area */}
-      <div className="rounded-b-lg border-t border-gray-200 bg-white p-4">
+      <div className="rounded-b-card border-t border-gray-100 bg-white p-4">
         <div className="flex items-center space-x-2">
           <input
             ref={inputRef}
@@ -224,12 +224,12 @@ export default function ChatWindow() {
             onKeyPress={handleKeyPress}
             placeholder="Ask me anything..."
             disabled={isLoading}
-            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-200 disabled:bg-gray-100"
+            className="flex-1 rounded-lg border border-gray-300 px-4 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200 disabled:bg-gray-100 transition-colors"
           />
           <button
             onClick={handleSendMessage}
             disabled={!inputValue.trim() || isLoading}
-            className="rounded-lg bg-blue-600 p-2 text-white transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300 disabled:cursor-not-allowed disabled:bg-gray-400"
+            className="rounded-lg bg-primary-600 p-2 text-white transition hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-300 disabled:cursor-not-allowed disabled:bg-gray-400"
             aria-label="Send message"
           >
             <svg

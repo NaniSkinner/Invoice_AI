@@ -20,16 +20,19 @@ export default function CustomersPage() {
   const [filteredCustomers, setFilteredCustomers] = useState<CustomerDto[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchCustomers = async () => {
       try {
         setIsLoading(true);
+        setError(null);
         const data = await getAllCustomers();
         setCustomers(data);
         setFilteredCustomers(data);
-      } catch (error) {
+      } catch (error: any) {
         console.error('Error fetching customers:', error);
+        setError(error.response?.data?.message || error.message || 'Failed to load customers');
       } finally {
         setIsLoading(false);
       }
@@ -69,6 +72,17 @@ export default function CustomersPage() {
             <Button>Add Customer</Button>
           </Link>
         </div>
+
+        {error && (
+          <Card className="border-l-4 border-red-500 bg-red-50">
+            <div className="flex items-start">
+              <div className="flex-1">
+                <h3 className="text-lg font-semibold text-red-800">Error Loading Customers</h3>
+                <p className="text-sm text-gray-600 mt-1">{error}</p>
+              </div>
+            </div>
+          </Card>
+        )}
 
         <Card>
           <div className="mb-4">

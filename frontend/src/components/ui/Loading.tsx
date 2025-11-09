@@ -16,7 +16,7 @@ export const Loading: React.FC<LoadingProps> = ({ size = 'md', text, fullScreen 
   const spinner = (
     <div className={`flex flex-col items-center justify-center ${fullScreen ? 'min-h-screen' : 'py-12'}`}>
       <svg
-        className={`animate-spin text-blue-600 ${sizeStyles[size]}`}
+        className={`animate-spin text-primary-600 ${sizeStyles[size]}`}
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"
