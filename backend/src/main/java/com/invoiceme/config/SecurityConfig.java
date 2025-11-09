@@ -26,7 +26,7 @@ public class SecurityConfig {
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll()
-                .requestMatchers("/api/payments/link/**").permitAll() // Public payment pages
+                .requestMatchers("/api/public/**").permitAll() // Public payment link endpoints
                 .anyRequest().authenticated()
             )
             .httpBasic();
