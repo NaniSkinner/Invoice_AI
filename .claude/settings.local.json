@@ -4,7 +4,8 @@
       "Bash(java -version:*)",
       "Bash(node:*)",
       "Bash(bun --version:*)",
-      "Bash(mvn clean compile:*)"
+      "Bash(mvn clean compile:*)",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []
