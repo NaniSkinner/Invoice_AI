@@ -49,9 +49,9 @@ export default function PaymentsPage() {
         </div>
 
         <Card>
-          <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div className="mb-4 p-4 bg-primary-50 border border-primary-200 rounded-lg">
             <p className="text-sm text-gray-600">Total Payments Received</p>
-            <p className="text-3xl font-bold text-green-600">{formatCurrency(totalPayments)}</p>
+            <p className="text-3xl font-bold text-primary-600">{formatCurrency(totalPayments)}</p>
           </div>
 
           <Table

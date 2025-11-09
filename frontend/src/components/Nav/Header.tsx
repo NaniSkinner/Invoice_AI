@@ -18,7 +18,7 @@ export const Header: React.FC = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b border-gray-200 fixed top-0 left-64 right-0 z-10">
+    <header className="bg-white shadow-sm border-b border-gray-100 fixed top-0 left-64 right-0 z-10">
       <div className="px-6 py-4 flex justify-between items-center">
         <div>
           <h2 className="text-xl font-semibold text-gray-800">Welcome back!</h2>
@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
         </div>
 
         <div className="flex items-center space-x-4">
-          <Button variant="outline" onClick={handleLogout}>
+          <Button variant="outline" size="sm" onClick={handleLogout}>
             Logout
           </Button>
         </div>

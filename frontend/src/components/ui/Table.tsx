@@ -36,25 +36,25 @@ export function Table<T extends { id?: string }>({
 
   return (
     <div className="overflow-x-auto">
-      <table className="min-w-full divide-y divide-gray-200">
-        <thead className="bg-gray-50">
+      <table className="min-w-full divide-y divide-gray-100">
+        <thead className="bg-sage-50">
           <tr>
             {columns.map((column, index) => (
               <th
                 key={index}
-                className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${column.className || ''}`}
+                className={`px-6 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider ${column.className || ''}`}
               >
                 {column.header}
               </th>
             ))}
           </tr>
         </thead>
-        <tbody className="bg-white divide-y divide-gray-200">
+        <tbody className="bg-white divide-y divide-gray-100">
           {data.map((row, rowIndex) => (
             <tr
               key={row.id || rowIndex}
               onClick={() => onRowClick?.(row)}
-              className={onRowClick ? 'hover:bg-gray-50 cursor-pointer' : ''}
+              className={onRowClick ? 'hover:bg-sage-50 cursor-pointer transition-colors duration-150' : ''}
             >
               {columns.map((column, colIndex) => (
                 <td

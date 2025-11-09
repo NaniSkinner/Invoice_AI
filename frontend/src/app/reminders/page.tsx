@@ -126,9 +126,9 @@ export default function RemindersPage() {
         {overdueInvoices.length === 0 ? (
           <Card>
             <div className="text-center py-12">
-              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100 mb-4">
+              <div className="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-primary-100 mb-4">
                 <svg
-                  className="h-6 w-6 text-green-600"
+                  className="h-6 w-6 text-primary-600"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -148,7 +148,7 @@ export default function RemindersPage() {
         ) : (
           <Card
             title={`Overdue Invoices (${overdueInvoices.length})`}
-            className="border-l-4 border-red-500"
+            className="border-l-4 border-red-500 bg-red-50"
           >
             <Table
               data={overdueInvoices}
@@ -225,7 +225,7 @@ export default function RemindersPage() {
             <Card>
               <div className="flex flex-col">
                 <span className="text-sm font-medium text-gray-600">7+ Days Overdue</span>
-                <span className="text-3xl font-bold text-orange-600 mt-2">
+                <span className="text-3xl font-bold text-amber-600 mt-2">
                   {overdueInvoices.filter((inv) => inv.daysOverdue >= 7).length}
                 </span>
               </div>

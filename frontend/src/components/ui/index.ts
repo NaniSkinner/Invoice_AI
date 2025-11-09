@@ -10,3 +10,4 @@ export * from './Table';
 export * from './Badge';
 export * from './Modal';
 export * from './Loading';
+export * from './CircularProgress';
