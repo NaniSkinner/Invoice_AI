@@ -10,11 +10,12 @@ import { Badge, getInvoiceStatusBadgeVariant } from '@/components/ui/Badge';
 import { Loading } from '@/components/ui/Loading';
 import { Table } from '@/components/ui/Table';
 import { RecordPaymentModal } from '@/components/invoices/RecordPaymentModal';
-import { SendReminderModal } from '@/components/invoices/SendReminderModal';
 import { ReminderEmailPreviewModal } from '@/components/invoices/ReminderEmailPreviewModal';
+import { MarkAsPaidModal } from '@/components/invoices/MarkAsPaidModal';
 import { EmailPreviewModal } from '@/components/invoices/EmailPreviewModal';
 import { CancelInvoiceModal } from '@/components/invoices/CancelInvoiceModal';
 import { CancellationEmailPreviewModal } from '@/components/invoices/CancellationEmailPreviewModal';
+import { PaymentLinkModal } from '@/components/invoices/PaymentLinkModal';
 import { SuccessModal } from '@/components/ui/SuccessModal';
 import {
   getInvoiceById,
@@ -39,13 +40,14 @@ export default function InvoiceDetailPage() {
   const [reminders, setReminders] = useState<ReminderHistoryDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
   const [isReminderEmailPreviewOpen, setIsReminderEmailPreviewOpen] = useState(false);
   const [selectedReminderType, setSelectedReminderType] = useState<ReminderType>('ON_DUE_DATE');
   const [isEmailPreviewOpen, setIsEmailPreviewOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isCancellationEmailPreviewOpen, setIsCancellationEmailPreviewOpen] = useState(false);
   const [cancellationReason, setCancellationReason] = useState('');
+  const [isPaymentLinkModalOpen, setIsPaymentLinkModalOpen] = useState(false);
+  const [isMarkAsPaidModalOpen, setIsMarkAsPaidModalOpen] = useState(false);
   const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
   const [successMessage, setSuccessMessage] = useState({ title: '', message: '', details: '' });
   const [isProcessing, setIsProcessing] = useState(false);
@@ -121,9 +123,9 @@ export default function InvoiceDetailPage() {
     }
   };
 
-  const handleShowReminderPreview = (reminderType: ReminderType) => {
-    setSelectedReminderType(reminderType);
-    setIsReminderModalOpen(false);
+  const handleShowReminderPreview = () => {
+    // Default to ON_DUE_DATE for general reminders
+    setSelectedReminderType('ON_DUE_DATE');
     setIsReminderEmailPreviewOpen(true);
   };
 
@@ -152,14 +154,22 @@ export default function InvoiceDetailPage() {
     router.push(`/invoices/${id}/edit`);
   };
 
-  const handleMarkAsPaid = async () => {
-    if (!confirm('Mark this invoice as paid?')) return;
+  const handleShowMarkAsPaidModal = () => {
+    setIsMarkAsPaidModalOpen(true);
+  };
 
+  const handleConfirmMarkAsPaid = async () => {
     try {
       setIsProcessing(true);
       const updated = await markInvoiceAsPaid(id);
       setInvoice(updated);
-      alert('Invoice marked as paid!');
+      setIsMarkAsPaidModalOpen(false);
+      setSuccessMessage({
+        title: 'Invoice Marked as Paid!',
+        message: `Invoice #${updated.invoiceNumber} has been successfully marked as paid.`,
+        details: `The invoice status has been updated to PAID and the balance is now $0.00. The payment has been recorded in the system.`
+      });
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error('Error marking as paid:', error);
       alert('Failed to mark invoice as paid.');
@@ -264,17 +274,12 @@ export default function InvoiceDetailPage() {
               </Button>
             )}
             {canSendReminder && (
-              <Button variant="secondary" onClick={() => {
-                console.log('Send Reminder button clicked');
-                console.log('isReminderModalOpen before:', isReminderModalOpen);
-                setIsReminderModalOpen(true);
-                console.log('setIsReminderModalOpen called');
-              }}>
+              <Button variant="secondary" onClick={handleShowReminderPreview}>
                 Send Reminder
               </Button>
             )}
             {canMarkPaid && (
-              <Button variant="success" onClick={handleMarkAsPaid} isLoading={isProcessing}>
+              <Button variant="success" onClick={handleShowMarkAsPaidModal}>
                 Mark as Paid
               </Button>
             )}
@@ -286,12 +291,7 @@ export default function InvoiceDetailPage() {
             {invoice.paymentLink && (
               <Button
                 variant="outline"
-                onClick={() => {
-                  navigator.clipboard.writeText(
-                    `${window.location.origin}/public/payment/${invoice.paymentLink}`
-                  );
-                  alert('Payment link copied to clipboard!');
-                }}
+                onClick={() => setIsPaymentLinkModalOpen(true)}
               >
                 Copy Payment Link
               </Button>
@@ -412,14 +412,16 @@ export default function InvoiceDetailPage() {
       </div>
 
       {/* Modals */}
-      <EmailPreviewModal
-        isOpen={isEmailPreviewOpen}
-        onClose={() => setIsEmailPreviewOpen(false)}
-        onConfirmSend={handleConfirmSendInvoice}
-        onEdit={handleEditFromPreview}
-        invoice={invoice}
-        isLoading={isProcessing}
-      />
+      {invoice && (
+        <EmailPreviewModal
+          isOpen={isEmailPreviewOpen}
+          onClose={() => setIsEmailPreviewOpen(false)}
+          onConfirmSend={handleConfirmSendInvoice}
+          onEdit={handleEditFromPreview}
+          invoice={invoice}
+          isLoading={isProcessing}
+        />
+      )}
 
       <CancelInvoiceModal
         isOpen={isCancelModalOpen}
@@ -429,14 +431,16 @@ export default function InvoiceDetailPage() {
         isLoading={isProcessing}
       />
 
-      <CancellationEmailPreviewModal
-        isOpen={isCancellationEmailPreviewOpen}
-        onClose={() => setIsCancellationEmailPreviewOpen(false)}
-        onConfirmSend={handleConfirmCancellation}
-        invoice={invoice!}
-        cancellationReason={cancellationReason}
-        isLoading={isProcessing}
-      />
+      {invoice && (
+        <CancellationEmailPreviewModal
+          isOpen={isCancellationEmailPreviewOpen}
+          onClose={() => setIsCancellationEmailPreviewOpen(false)}
+          onConfirmSend={handleConfirmCancellation}
+          invoice={invoice}
+          cancellationReason={cancellationReason}
+          isLoading={isProcessing}
+        />
+      )}
 
       <SuccessModal
         isOpen={isSuccessModalOpen}
@@ -446,30 +450,45 @@ export default function InvoiceDetailPage() {
         details={successMessage.details}
       />
 
-      <RecordPaymentModal
-        isOpen={isPaymentModalOpen}
-        onClose={() => setIsPaymentModalOpen(false)}
-        onSubmit={handleRecordPayment}
-        maxAmount={invoice.balanceRemaining}
-        isLoading={isProcessing}
-      />
+      {invoice && (
+        <RecordPaymentModal
+          isOpen={isPaymentModalOpen}
+          onClose={() => setIsPaymentModalOpen(false)}
+          onSubmit={handleRecordPayment}
+          maxAmount={invoice.balanceRemaining}
+          isLoading={isProcessing}
+        />
+      )}
 
-      <SendReminderModal
-        isOpen={isReminderModalOpen}
-        onClose={() => setIsReminderModalOpen(false)}
-        onPreview={handleShowReminderPreview}
-        isLoading={isProcessing}
-      />
+      {invoice && (
+        <ReminderEmailPreviewModal
+          isOpen={isReminderEmailPreviewOpen}
+          onClose={() => setIsReminderEmailPreviewOpen(false)}
+          onConfirmSend={handleConfirmSendReminder}
+          onEdit={handleEditFromReminderPreview}
+          invoice={invoice}
+          reminderType={selectedReminderType}
+          isLoading={isProcessing}
+        />
+      )}
 
-      <ReminderEmailPreviewModal
-        isOpen={isReminderEmailPreviewOpen}
-        onClose={() => setIsReminderEmailPreviewOpen(false)}
-        onConfirmSend={handleConfirmSendReminder}
-        onEdit={handleEditFromReminderPreview}
-        invoice={invoice!}
-        reminderType={selectedReminderType}
-        isLoading={isProcessing}
-      />
+      {invoice && (
+        <PaymentLinkModal
+          isOpen={isPaymentLinkModalOpen}
+          onClose={() => setIsPaymentLinkModalOpen(false)}
+          invoice={invoice}
+        />
+      )}
+
+      {invoice && (
+        <MarkAsPaidModal
+          isOpen={isMarkAsPaidModalOpen}
+          onClose={() => setIsMarkAsPaidModalOpen(false)}
+          onConfirm={handleConfirmMarkAsPaid}
+          invoice={invoice}
+          isLoading={isProcessing}
+        />
+      )}
     </AppLayout>
   );
 }
