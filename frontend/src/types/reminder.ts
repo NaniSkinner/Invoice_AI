@@ -19,6 +19,7 @@ export interface ReminderPreviewDto {
 }
 
 export interface OverdueInvoiceDto {
+  id?: string; // For Table component compatibility
   invoiceId: string;
   invoiceNumber: string;
   customerName: string;
