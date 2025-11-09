@@ -162,7 +162,6 @@ export default function RemindersPage() {
                     <span className="font-semibold text-red-600">{row.daysOverdue} days</span>
                   ),
                 },
-                { header: 'Total', accessor: (row) => formatCurrency(row.totalAmount) },
                 { header: 'Balance Due', accessor: (row) => formatCurrency(row.balanceRemaining) },
                 {
                   header: 'Severity',
