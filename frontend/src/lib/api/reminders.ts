@@ -26,7 +26,7 @@ export interface ReminderPreviewDto {
 }
 
 export interface OverdueInvoiceDto {
-  id: string;
+  invoiceId: string;
   invoiceNumber: string;
   customerName: string;
   dueDate: string;

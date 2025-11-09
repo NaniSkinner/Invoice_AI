@@ -8,9 +8,12 @@ import { Table } from '@/components/ui/Table';
 import { Button } from '@/components/ui/Button';
 import { Badge } from '@/components/ui/Badge';
 import { Loading } from '@/components/ui/Loading';
-import { SendReminderModal } from '@/components/invoices/SendReminderModal';
+import { ReminderEmailPreviewModal } from '@/components/invoices/ReminderEmailPreviewModal';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import { getOverdueInvoices, sendReminder } from '@/lib/api/reminders';
+import { getInvoiceById } from '@/lib/api/invoices';
 import { OverdueInvoiceDto, ReminderType } from '@/types/reminder';
+import { InvoiceDto } from '@/types/invoice';
 import { formatDate, formatCurrency, calculateDaysUntil } from '@/lib/format';
 
 export default function RemindersPage() {
@@ -18,7 +21,11 @@ export default function RemindersPage() {
   const [overdueInvoices, setOverdueInvoices] = useState<OverdueInvoiceDto[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [selectedInvoiceId, setSelectedInvoiceId] = useState<string | null>(null);
-  const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [selectedInvoice, setSelectedInvoice] = useState<InvoiceDto | null>(null);
+  const [isReminderEmailPreviewOpen, setIsReminderEmailPreviewOpen] = useState(false);
+  const [selectedReminderType, setSelectedReminderType] = useState<ReminderType>('ON_DUE_DATE');
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState({ title: '', message: '', details: '' });
   const [isSending, setIsSending] = useState(false);
 
   const fetchOverdueInvoices = async () => {
@@ -37,25 +44,57 @@ export default function RemindersPage() {
     fetchOverdueInvoices();
   }, []);
 
-  const handleSendReminder = (invoiceId: string) => {
-    setSelectedInvoiceId(invoiceId);
-    setIsReminderModalOpen(true);
+  // Determine appropriate reminder type based on days overdue
+  const getReminderTypeForDaysOverdue = (daysOverdue: number): ReminderType => {
+    if (daysOverdue >= 30) return 'OVERDUE_30_DAYS';
+    if (daysOverdue >= 14) return 'OVERDUE_14_DAYS';
+    if (daysOverdue >= 7) return 'OVERDUE_7_DAYS';
+    return 'ON_DUE_DATE';
   };
 
-  const handleReminderSubmit = async (reminderType: ReminderType) => {
+  const handleSendReminder = async (invoiceId: string, daysOverdue: number) => {
+    try {
+      setSelectedInvoiceId(invoiceId);
+      const invoiceData = await getInvoiceById(invoiceId);
+      setSelectedInvoice(invoiceData);
+
+      // Automatically determine reminder type based on days overdue
+      const reminderType = getReminderTypeForDaysOverdue(daysOverdue);
+      setSelectedReminderType(reminderType);
+
+      // Go directly to email preview
+      setIsReminderEmailPreviewOpen(true);
+    } catch (error) {
+      console.error('Error fetching invoice:', error);
+      alert('Failed to load invoice details.');
+    }
+  };
+
+  const handleConfirmSendReminder = async () => {
     if (!selectedInvoiceId) return;
 
     try {
       setIsSending(true);
-      await sendReminder({ invoiceId: selectedInvoiceId, reminderType });
-      alert('Reminder sent successfully!');
-      setIsReminderModalOpen(false);
+      await sendReminder({ invoiceId: selectedInvoiceId, reminderType: selectedReminderType });
       await fetchOverdueInvoices();
+      setIsReminderEmailPreviewOpen(false);
+      setSuccessMessage({
+        title: 'Reminder Sent Successfully!',
+        message: `Payment reminder has been sent to ${selectedInvoice?.customerName}.`,
+        details: `The reminder email has been delivered to ${selectedInvoice?.customerEmail}. The customer has been notified about the payment status.`
+      });
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error('Error sending reminder:', error);
       alert('Failed to send reminder.');
     } finally {
       setIsSending(false);
+    }
+  };
+
+  const handleEditFromReminderPreview = () => {
+    if (selectedInvoiceId) {
+      router.push(`/invoices/${selectedInvoiceId}/edit`);
     }
   };
 
@@ -138,7 +177,7 @@ export default function RemindersPage() {
                         variant="secondary"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleSendReminder(row.id);
+                          handleSendReminder(row.invoiceId, row.daysOverdue);
                         }}
                       >
                         Send Reminder
@@ -148,7 +187,7 @@ export default function RemindersPage() {
                         variant="outline"
                         onClick={(e) => {
                           e.stopPropagation();
-                          router.push(`/invoices/${row.id}`);
+                          router.push(`/invoices/${row.invoiceId}`);
                         }}
                       >
                         View
@@ -204,18 +243,29 @@ export default function RemindersPage() {
         )}
       </div>
 
-      {selectedInvoiceId && (
-        <SendReminderModal
-          isOpen={isReminderModalOpen}
-          onClose={() => {
-            setIsReminderModalOpen(false);
-            setSelectedInvoiceId(null);
-          }}
-          onSubmit={handleReminderSubmit}
-          invoiceId={selectedInvoiceId}
+      {selectedInvoice && (
+        <ReminderEmailPreviewModal
+          isOpen={isReminderEmailPreviewOpen}
+          onClose={() => setIsReminderEmailPreviewOpen(false)}
+          onConfirmSend={handleConfirmSendReminder}
+          onEdit={handleEditFromReminderPreview}
+          invoice={selectedInvoice}
+          reminderType={selectedReminderType}
           isLoading={isSending}
         />
       )}
+
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => {
+          setIsSuccessModalOpen(false);
+          setSelectedInvoiceId(null);
+          setSelectedInvoice(null);
+        }}
+        title={successMessage.title}
+        message={successMessage.message}
+        details={successMessage.details}
+      />
     </AppLayout>
   );
 }

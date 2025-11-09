@@ -11,6 +11,7 @@ import { Loading } from '@/components/ui/Loading';
 import { Table } from '@/components/ui/Table';
 import { RecordPaymentModal } from '@/components/invoices/RecordPaymentModal';
 import { SendReminderModal } from '@/components/invoices/SendReminderModal';
+import { ReminderEmailPreviewModal } from '@/components/invoices/ReminderEmailPreviewModal';
 import { EmailPreviewModal } from '@/components/invoices/EmailPreviewModal';
 import { CancelInvoiceModal } from '@/components/invoices/CancelInvoiceModal';
 import { CancellationEmailPreviewModal } from '@/components/invoices/CancellationEmailPreviewModal';
@@ -39,6 +40,8 @@ export default function InvoiceDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [isReminderEmailPreviewOpen, setIsReminderEmailPreviewOpen] = useState(false);
+  const [selectedReminderType, setSelectedReminderType] = useState<ReminderType>('ON_DUE_DATE');
   const [isEmailPreviewOpen, setIsEmailPreviewOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
   const [isCancellationEmailPreviewOpen, setIsCancellationEmailPreviewOpen] = useState(false);
@@ -118,19 +121,35 @@ export default function InvoiceDetailPage() {
     }
   };
 
-  const handleSendReminder = async (reminderType: ReminderType) => {
+  const handleShowReminderPreview = (reminderType: ReminderType) => {
+    setSelectedReminderType(reminderType);
+    setIsReminderModalOpen(false);
+    setIsReminderEmailPreviewOpen(true);
+  };
+
+  const handleConfirmSendReminder = async () => {
     try {
       setIsProcessing(true);
-      await sendReminder({ invoiceId: id, reminderType });
+      await sendReminder({ invoiceId: id, reminderType: selectedReminderType });
       await fetchData();
-      setIsReminderModalOpen(false);
-      alert('Reminder sent successfully!');
+      setIsReminderEmailPreviewOpen(false);
+      setSuccessMessage({
+        title: 'Reminder Sent Successfully!',
+        message: `Payment reminder has been sent to ${invoice?.customerName}.`,
+        details: `The reminder email has been delivered to ${invoice?.customerEmail}. The customer has been notified about the payment status.`
+      });
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error('Error sending reminder:', error);
       alert('Failed to send reminder.');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleEditFromReminderPreview = () => {
+    setIsReminderEmailPreviewOpen(false);
+    router.push(`/invoices/${id}/edit`);
   };
 
   const handleMarkAsPaid = async () => {
@@ -245,7 +264,12 @@ export default function InvoiceDetailPage() {
               </Button>
             )}
             {canSendReminder && (
-              <Button variant="secondary" onClick={() => setIsReminderModalOpen(true)}>
+              <Button variant="secondary" onClick={() => {
+                console.log('Send Reminder button clicked');
+                console.log('isReminderModalOpen before:', isReminderModalOpen);
+                setIsReminderModalOpen(true);
+                console.log('setIsReminderModalOpen called');
+              }}>
                 Send Reminder
               </Button>
             )}
@@ -433,8 +457,17 @@ export default function InvoiceDetailPage() {
       <SendReminderModal
         isOpen={isReminderModalOpen}
         onClose={() => setIsReminderModalOpen(false)}
-        onSubmit={handleSendReminder}
-        invoiceId={id}
+        onPreview={handleShowReminderPreview}
+        isLoading={isProcessing}
+      />
+
+      <ReminderEmailPreviewModal
+        isOpen={isReminderEmailPreviewOpen}
+        onClose={() => setIsReminderEmailPreviewOpen(false)}
+        onConfirmSend={handleConfirmSendReminder}
+        onEdit={handleEditFromReminderPreview}
+        invoice={invoice!}
+        reminderType={selectedReminderType}
         isLoading={isProcessing}
       />
     </AppLayout>
