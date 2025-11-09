@@ -11,6 +11,10 @@ import { Loading } from '@/components/ui/Loading';
 import { Table } from '@/components/ui/Table';
 import { RecordPaymentModal } from '@/components/invoices/RecordPaymentModal';
 import { SendReminderModal } from '@/components/invoices/SendReminderModal';
+import { EmailPreviewModal } from '@/components/invoices/EmailPreviewModal';
+import { CancelInvoiceModal } from '@/components/invoices/CancelInvoiceModal';
+import { CancellationEmailPreviewModal } from '@/components/invoices/CancellationEmailPreviewModal';
+import { SuccessModal } from '@/components/ui/SuccessModal';
 import {
   getInvoiceById,
   sendInvoice,
@@ -35,6 +39,12 @@ export default function InvoiceDetailPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [isReminderModalOpen, setIsReminderModalOpen] = useState(false);
+  const [isEmailPreviewOpen, setIsEmailPreviewOpen] = useState(false);
+  const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
+  const [isCancellationEmailPreviewOpen, setIsCancellationEmailPreviewOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [isSuccessModalOpen, setIsSuccessModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState({ title: '', message: '', details: '' });
   const [isProcessing, setIsProcessing] = useState(false);
 
   const fetchData = async () => {
@@ -61,20 +71,33 @@ export default function InvoiceDetailPage() {
     fetchData();
   }, [id]);
 
-  const handleSendInvoice = async () => {
-    if (!confirm('Send this invoice to the customer?')) return;
+  const handleShowEmailPreview = () => {
+    setIsEmailPreviewOpen(true);
+  };
 
+  const handleConfirmSendInvoice = async () => {
     try {
       setIsProcessing(true);
       const updated = await sendInvoice(id);
       setInvoice(updated);
-      alert('Invoice sent successfully!');
+      setIsEmailPreviewOpen(false);
+      setSuccessMessage({
+        title: 'Invoice Sent Successfully!',
+        message: `Invoice #${updated.invoiceNumber} has been sent to ${updated.customerName}.`,
+        details: `The invoice email has been delivered to ${updated.customerEmail}. The customer can now view and pay the invoice online.`
+      });
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error('Error sending invoice:', error);
       alert('Failed to send invoice.');
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handleEditFromPreview = () => {
+    setIsEmailPreviewOpen(false);
+    router.push(`/invoices/${id}/edit`);
   };
 
   const handleRecordPayment = async (data: any) => {
@@ -126,14 +149,40 @@ export default function InvoiceDetailPage() {
     }
   };
 
-  const handleCancelInvoice = async () => {
-    if (!confirm('Cancel this invoice? This action cannot be undone.')) return;
+  const handleShowCancelModal = () => {
+    setIsCancelModalOpen(true);
+  };
 
+  const handleCancelReasonSubmit = (reasonCode: string, reasonText: string) => {
+    setCancellationReason(reasonText);
+    setIsCancelModalOpen(false);
+
+    // If invoice was SENT, show email preview
+    if (invoice?.status === 'SENT') {
+      setIsCancellationEmailPreviewOpen(true);
+    } else {
+      // If DRAFT, just cancel directly without email
+      handleConfirmCancellation();
+    }
+  };
+
+  const handleConfirmCancellation = async () => {
     try {
       setIsProcessing(true);
-      const updated = await cancelInvoice(id);
+      const updated = await cancelInvoice(id, cancellationReason);
       setInvoice(updated);
-      alert('Invoice cancelled.');
+      setIsCancellationEmailPreviewOpen(false);
+
+      // Show success modal with different messages based on whether email was sent
+      const wasEmailSent = updated.status === 'CANCELLED' && invoice?.status === 'SENT';
+      setSuccessMessage({
+        title: 'Invoice Cancelled',
+        message: `Invoice #${updated.invoiceNumber} has been cancelled successfully.`,
+        details: wasEmailSent
+          ? `A cancellation notification has been sent to ${updated.customerEmail}. The customer has been informed that this invoice is no longer payable.`
+          : 'The invoice status has been updated to CANCELLED.'
+      });
+      setIsSuccessModalOpen(true);
     } catch (error) {
       console.error('Error cancelling invoice:', error);
       alert('Failed to cancel invoice.');
@@ -186,7 +235,7 @@ export default function InvoiceDetailPage() {
         <Card title="Actions">
           <div className="flex flex-wrap gap-3">
             {canSend && (
-              <Button onClick={handleSendInvoice} isLoading={isProcessing}>
+              <Button onClick={handleShowEmailPreview}>
                 Send Invoice
               </Button>
             )}
@@ -206,7 +255,7 @@ export default function InvoiceDetailPage() {
               </Button>
             )}
             {canCancel && (
-              <Button variant="danger" onClick={handleCancelInvoice} isLoading={isProcessing}>
+              <Button variant="danger" onClick={handleShowCancelModal}>
                 Cancel Invoice
               </Button>
             )}
@@ -339,6 +388,40 @@ export default function InvoiceDetailPage() {
       </div>
 
       {/* Modals */}
+      <EmailPreviewModal
+        isOpen={isEmailPreviewOpen}
+        onClose={() => setIsEmailPreviewOpen(false)}
+        onConfirmSend={handleConfirmSendInvoice}
+        onEdit={handleEditFromPreview}
+        invoice={invoice}
+        isLoading={isProcessing}
+      />
+
+      <CancelInvoiceModal
+        isOpen={isCancelModalOpen}
+        onClose={() => setIsCancelModalOpen(false)}
+        onConfirm={handleCancelReasonSubmit}
+        invoiceNumber={invoice?.invoiceNumber || ''}
+        isLoading={isProcessing}
+      />
+
+      <CancellationEmailPreviewModal
+        isOpen={isCancellationEmailPreviewOpen}
+        onClose={() => setIsCancellationEmailPreviewOpen(false)}
+        onConfirmSend={handleConfirmCancellation}
+        invoice={invoice!}
+        cancellationReason={cancellationReason}
+        isLoading={isProcessing}
+      />
+
+      <SuccessModal
+        isOpen={isSuccessModalOpen}
+        onClose={() => setIsSuccessModalOpen(false)}
+        title={successMessage.title}
+        message={successMessage.message}
+        details={successMessage.details}
+      />
+
       <RecordPaymentModal
         isOpen={isPaymentModalOpen}
         onClose={() => setIsPaymentModalOpen(false)}

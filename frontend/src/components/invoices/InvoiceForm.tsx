@@ -157,6 +157,24 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
           </Button>
         </div>
 
+        {/* Column Headers */}
+        <div className="flex gap-3 items-center">
+          <div className="flex-1">
+            <label className="block text-sm font-medium text-gray-700">Item</label>
+          </div>
+          <div className="w-24">
+            <label className="block text-sm font-medium text-gray-700">Qty</label>
+          </div>
+          <div className="w-32">
+            <label className="block text-sm font-medium text-gray-700">Unit Price</label>
+          </div>
+          {fields.length > 1 && (
+            <div className="w-20">
+              {/* Spacer for remove button */}
+            </div>
+          )}
+        </div>
+
         <div className="space-y-3">
           {fields.map((field, index) => (
             <div key={field.id} className="flex gap-3 items-start">
@@ -177,18 +195,25 @@ export const InvoiceForm: React.FC<InvoiceFormProps> = ({
                 />
               </div>
               <div className="w-32">
-                <Input
-                  type="number"
-                  step="0.01"
-                  {...register(`lineItems.${index}.unitPrice`, { valueAsNumber: true })}
-                  error={errors.lineItems?.[index]?.unitPrice?.message}
-                  placeholder="Unit Price"
-                />
-              </div>
-              <div className="w-32 pt-2">
-                <span className="text-sm font-medium">
-                  {formatCurrency((lineItems[index]?.quantity || 0) * (lineItems[index]?.unitPrice || 0))}
-                </span>
+                <div className="relative">
+                  <span className="absolute left-3 top-2 text-gray-400 pointer-events-none">$</span>
+                  <Input
+                    type="text"
+                    {...register(`lineItems.${index}.unitPrice`, {
+                      valueAsNumber: true,
+                      setValueAs: (v) => v === '' ? 0 : parseFloat(v) || 0
+                    })}
+                    error={errors.lineItems?.[index]?.unitPrice?.message}
+                    placeholder="0.00"
+                    className="pl-7"
+                    onKeyPress={(e) => {
+                      // Only allow numbers and decimal point
+                      if (!/[0-9.]/.test(e.key)) {
+                        e.preventDefault();
+                      }
+                    }}
+                  />
+                </div>
               </div>
               {fields.length > 1 && (
                 <Button

@@ -3,6 +3,7 @@ export interface InvoiceDto {
   invoiceNumber: string;
   customerId: string;
   customerName: string;
+  customerEmail: string;
   issueDate: string;
   dueDate: string;
   status: 'DRAFT' | 'SENT' | 'PAID' | 'CANCELLED';

@@ -95,8 +95,10 @@ export const markInvoiceAsPaid = async (id: string): Promise<InvoiceDto> => {
 /**
  * Cancel invoice
  */
-export const cancelInvoice = async (id: string): Promise<InvoiceDto> => {
-  const response = await axiosInstance.post(`/invoices/${id}/cancel`);
+export const cancelInvoice = async (id: string, cancellationReason: string): Promise<InvoiceDto> => {
+  const response = await axiosInstance.post(`/invoices/${id}/cancel`, {
+    cancellationReason
+  });
   return response.data;
 };
 
