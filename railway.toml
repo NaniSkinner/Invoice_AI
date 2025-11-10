@@ -1,6 +1,5 @@
 [build]
 builder = "NIXPACKS"
-watchPatterns = ["backend/**"]
 
 [deploy]
 startCommand = "java -Dserver.port=$PORT -jar backend/target/*.jar"
