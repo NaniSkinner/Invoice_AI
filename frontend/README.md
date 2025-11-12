@@ -213,14 +213,104 @@ Responsive breakpoints: sm (640px), md (768px), lg (1024px)
 
 ## Testing the Application
 
-1. **Login:** Use demo/password
-2. **Create Customer:** Add customer with billing address
-3. **Create Invoice:** Select customer, add line items
-4. **Send Invoice:** Changes status, generates payment link
-5. **Record Payment:** Add payment via modal
-6. **View Dashboard:** See metrics update
-7. **Public Payment:** Use payment link (no login)
-8. **Send Reminder:** For overdue invoices
+### Complete Test Flow (5 minutes)
+
+#### 1. Create a Customer
+1. Click "Customers" in sidebar
+2. Click "Add Customer" button
+3. Fill in form:
+   - Business Name: "Acme Corp"
+   - Contact Name: "John Doe"
+   - Email: "john@acme.com"
+   - Phone: "555-0123"
+   - Billing Address: Complete all fields
+4. Click "Create Customer"
+
+#### 2. Create an Invoice
+1. Click "Invoices" in sidebar
+2. Click "Create Invoice" button
+3. Select customer: "Acme Corp"
+4. Set issue/due dates
+5. Add line items:
+   - Description: "Web Development"
+   - Quantity: 40
+   - Unit Price: 100
+6. Click "Create Invoice"
+
+#### 3. Send the Invoice
+1. On invoice detail page, click "Send Invoice"
+2. Confirm action
+3. Status changes to "SENT"
+4. Payment link is generated
+
+#### 4. Test Public Payment Portal
+1. Copy payment link from invoice page
+2. Open in **incognito/private window**
+3. View invoice without login
+4. Fill payment form:
+   - Amount: (full balance shown)
+   - Date: Today
+   - Method: "Bank Transfer"
+   - Reference: "TXN-12345"
+5. Submit payment
+6. See confirmation
+
+#### 5. Verify Payment
+1. Return to logged-in browser
+2. Refresh invoice page
+3. See payment in history
+4. Status is now "PAID"
+5. Balance is $0.00
+
+#### 6. Test Reminders
+1. Create invoice with past due date
+2. Go to "Reminders" page
+3. See overdue invoice listed
+4. Click "Send Reminder"
+5. Preview email
+6. Send reminder
+7. View reminder history
+
+### Feature Checklist
+
+#### Dashboard
+- [ ] View total revenue
+- [ ] See invoice counts by status
+- [ ] Check recent invoices/payments
+- [ ] View overdue alerts
+
+#### Customers
+- [ ] List, search, filter customers
+- [ ] Create, view, edit, delete customer
+- [ ] View customer's invoice history
+- [ ] Prevent deletion with active invoices
+
+#### Invoices
+- [ ] List with status filter
+- [ ] Create with multiple line items
+- [ ] Auto-calculate totals
+- [ ] Edit draft, send, cancel
+- [ ] Copy payment link
+- [ ] Record payment (full/partial)
+- [ ] Mark as paid
+- [ ] View payment/reminder history
+
+#### Payments
+- [ ] List all payments
+- [ ] View payment details
+- [ ] Navigate to related invoice
+
+#### Public Portal
+- [ ] Access without login
+- [ ] View invoice details
+- [ ] Submit payment
+- [ ] Get confirmation
+
+#### Reminders
+- [ ] View overdue invoices
+- [ ] Preview reminder email
+- [ ] Send reminders
+- [ ] View reminder history
 
 ## Browser Support
 
