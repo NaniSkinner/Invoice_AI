@@ -63,17 +63,24 @@ Frontend (Render/Vercel) → Backend API (Render Web Service) → PostgreSQL (Re
 
 4. **Add Environment Variables** (click "Advanced" → "Add Environment Variable"):
 
+   **CRITICAL**: You MUST add the `DATABASE_URL` from your PostgreSQL database.
+
    | Key | Value | Notes |
    |-----|-------|-------|
+   | `DATABASE_URL` | See step 5 below | **REQUIRED** - Copy from database |
    | `OPENAI_API_KEY` | `sk-your-key-here` | Your OpenAI API key |
    | `JWT_SECRET` | `your-secure-random-string-min-256-bits` | Generate a secure random string (32+ chars) |
    | `CORS_ORIGINS` | `http://localhost:3000` | Update after frontend deployment |
 
-5. **Link Database**:
-   - Scroll down to "Environment Variables"
-   - Click "Add from Database"
-   - Select your `invoiceme-db` database
-   - This will automatically add: `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD`
+5. **Get DATABASE_URL from your PostgreSQL database**:
+   - Go back to your Render Dashboard
+   - Click on your `invoiceme-db` database
+   - Scroll down to "Connections"
+   - Find **"Internal Database URL"** (NOT External)
+   - Copy the entire URL (format: `postgres://user:pass@host:port/database`)
+   - Paste this as the value for `DATABASE_URL` in step 4 above
+
+   **Why Internal URL?** Render services communicate faster using internal URLs, and external URLs may have connection limits.
 
 6. Click **"Create Web Service"**
 
@@ -172,15 +179,25 @@ After frontend is deployed:
 
 **Error**: `Connection to localhost:5432 refused`
 
-**Solution**: Make sure you linked the database in Step 2.5. The environment variables `PGHOST`, `PGPORT`, `PGDATABASE`, `PGUSER`, `PGPASSWORD` must be set.
+**Cause**: The `DATABASE_URL` environment variable is not set or is incorrect.
 
-**Manual Setup** (if auto-link doesn't work):
-1. Go to your database in Render dashboard
-2. Copy the "Internal Database URL" (not external)
-3. It will be in format: `postgresql://user:pass@host:port/database`
-4. Manually add these environment variables to your web service:
-   - Extract values from the URL and add individually
-   - Or use the connection info panel on the database page
+**Solution**:
+1. Go to your Render dashboard
+2. Open your backend web service
+3. Go to "Environment" tab
+4. Verify `DATABASE_URL` exists and is set correctly
+5. Get the correct value from your database:
+   - Click on your `invoiceme-db` database
+   - Scroll to "Connections" section
+   - Copy the **"Internal Database URL"** (format: `postgres://user:pass@dpg-xxx.oregon-postgres.render.com:5432/invoiceme`)
+   - Paste this as the `DATABASE_URL` value in your web service
+6. Click "Save Changes" - the service will automatically redeploy
+
+**Note**: The application uses a custom `DatabaseConfig.java` that automatically:
+- Parses the `postgres://` URL format from Render
+- Converts it to JDBC format (`jdbc:postgresql://`)
+- Extracts username and password automatically
+- Logs the connection details on startup (check logs for "✅ Successfully parsed DATABASE_URL")
 
 ### Backend Crashes - Out of Memory
 
@@ -231,16 +248,14 @@ After frontend is deployed:
 
 | Variable | Required | Default | Description |
 |----------|----------|---------|-------------|
-| `PGHOST` | Yes | - | Auto-provided by database link |
-| `PGPORT` | Yes | - | Auto-provided by database link |
-| `PGDATABASE` | Yes | - | Auto-provided by database link |
-| `PGUSER` | Yes | - | Auto-provided by database link |
-| `PGPASSWORD` | Yes | - | Auto-provided by database link |
+| `DATABASE_URL` | **Yes** | - | **REQUIRED** - Internal Database URL from Render PostgreSQL (format: `postgres://user:pass@host:port/db`) |
+| `OPENAI_API_KEY` | **Yes** | - | Your OpenAI API key |
+| `JWT_SECRET` | **Yes** | - | Secure random string (32+ chars) |
+| `CORS_ORIGINS` | **Yes** | - | Frontend URL(s), comma-separated |
 | `PORT` | No | 8080 | Auto-provided by Render |
-| `OPENAI_API_KEY` | Yes | - | Your OpenAI API key |
-| `JWT_SECRET` | Yes | - | Secure random string (32+ chars) |
-| `CORS_ORIGINS` | Yes | - | Frontend URL(s), comma-separated |
 | `OPENAI_MODEL` | No | gpt-4o-mini | OpenAI model to use |
+| `DATABASE_USERNAME` | No | - | Fallback for local dev (not needed if DATABASE_URL is set) |
+| `DATABASE_PASSWORD` | No | - | Fallback for local dev (not needed if DATABASE_URL is set) |
 
 ### Frontend Service
 
