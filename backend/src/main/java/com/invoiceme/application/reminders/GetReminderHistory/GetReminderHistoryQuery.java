@@ -1,5 +1,7 @@
 package com.invoiceme.application.reminders.GetReminderHistory;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,22 +10,24 @@ import java.util.UUID;
  */
 public class GetReminderHistoryQuery {
 
+    
     private UUID invoiceId;
 
     // Constructors
     public GetReminderHistoryQuery() {
     }
 
-    public GetReminderHistoryQuery(UUID invoiceId) {
+    public GetReminderHistoryQuery(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(UUID invoiceId) {
+    public void setInvoiceId(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 

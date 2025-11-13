@@ -1,5 +1,7 @@
 package com.invoiceme.application.payments.RecordPayment;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.invoiceme.domain.payment.PaymentMethod;
 
 import java.math.BigDecimal;
@@ -13,7 +15,9 @@ import java.util.UUID;
  */
 public class RecordPaymentCommand {
 
+    
     private UUID id;
+    
     private UUID invoiceId;
     private BigDecimal paymentAmount;
     private LocalDate paymentDate;
@@ -38,19 +42,21 @@ public class RecordPaymentCommand {
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(@NotNull UUID id) {
         this.id = id;
     }
 
+    @NotNull
     public UUID getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(UUID invoiceId) {
+    public void setInvoiceId(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 

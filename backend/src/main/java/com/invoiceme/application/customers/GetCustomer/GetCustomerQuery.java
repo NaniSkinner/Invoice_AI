@@ -1,5 +1,7 @@
 package com.invoiceme.application.customers.GetCustomer;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -9,22 +11,24 @@ import java.util.UUID;
  */
 public class GetCustomerQuery {
 
+    
     private UUID customerId;
 
     // Constructors
     public GetCustomerQuery() {
     }
 
-    public GetCustomerQuery(UUID customerId) {
+    public GetCustomerQuery(@NotNull UUID customerId) {
         this.customerId = customerId;
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(UUID customerId) {
+    public void setCustomerId(@NotNull UUID customerId) {
         this.customerId = customerId;
     }
 

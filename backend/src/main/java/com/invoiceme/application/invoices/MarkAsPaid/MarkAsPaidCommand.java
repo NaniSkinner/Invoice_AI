@@ -1,5 +1,7 @@
 package com.invoiceme.application.invoices.MarkAsPaid;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -10,22 +12,24 @@ import java.util.UUID;
  */
 public class MarkAsPaidCommand {
 
+    
     private UUID invoiceId;
 
     // Constructors
     public MarkAsPaidCommand() {
     }
 
-    public MarkAsPaidCommand(UUID invoiceId) {
+    public MarkAsPaidCommand(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(UUID invoiceId) {
+    public void setInvoiceId(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 

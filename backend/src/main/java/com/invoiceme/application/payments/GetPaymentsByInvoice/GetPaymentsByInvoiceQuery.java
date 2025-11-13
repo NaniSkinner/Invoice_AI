@@ -1,5 +1,7 @@
 package com.invoiceme.application.payments.GetPaymentsByInvoice;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,22 +10,24 @@ import java.util.UUID;
  */
 public class GetPaymentsByInvoiceQuery {
 
+    
     private UUID invoiceId;
 
     // Constructors
     public GetPaymentsByInvoiceQuery() {
     }
 
-    public GetPaymentsByInvoiceQuery(UUID invoiceId) {
+    public GetPaymentsByInvoiceQuery(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(UUID invoiceId) {
+    public void setInvoiceId(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 

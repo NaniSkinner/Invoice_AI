@@ -1,5 +1,7 @@
 package com.invoiceme.application.reminders.PreviewReminder;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.invoiceme.domain.reminder.ReminderType;
 
 import java.util.Objects;
@@ -11,6 +13,7 @@ import java.util.UUID;
  */
 public class PreviewReminderQuery {
 
+    
     private UUID invoiceId;
     private ReminderType reminderType;
 
@@ -24,11 +27,12 @@ public class PreviewReminderQuery {
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(UUID invoiceId) {
+    public void setInvoiceId(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 

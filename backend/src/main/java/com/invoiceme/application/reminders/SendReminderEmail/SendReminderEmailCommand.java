@@ -1,5 +1,7 @@
 package com.invoiceme.application.reminders.SendReminderEmail;
 
+import jakarta.validation.constraints.NotNull;
+
 import com.invoiceme.domain.reminder.ReminderType;
 
 import java.util.Objects;
@@ -11,6 +13,7 @@ import java.util.UUID;
  */
 public class SendReminderEmailCommand {
 
+    
     private UUID invoiceId;
     private ReminderType reminderType;
     private String recipientEmail; // Optional: override invoice customer email
@@ -26,11 +29,12 @@ public class SendReminderEmailCommand {
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(UUID invoiceId) {
+    public void setInvoiceId(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 
