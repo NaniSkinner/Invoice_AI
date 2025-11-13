@@ -43,10 +43,15 @@ export const CancelInvoiceModal: React.FC<CancelInvoiceModalProps> = ({
       return;
     }
 
-    const finalReason = selectedReason === 'other' ? customReason :
-      CANCELLATION_REASONS.find(r => r.value === selectedReason)?.label || selectedReason;
+    // Get the label for the selected reason
+    const reasonLabel = CANCELLATION_REASONS.find(r => r.value === selectedReason)?.label || selectedReason;
 
-    onConfirm(selectedReason, finalReason);
+    // Pass the label as first param, and customReason as second param only if 'other' is selected
+    if (selectedReason === 'other' && customReason.trim()) {
+      onConfirm(reasonLabel, customReason.trim());
+    } else {
+      onConfirm(reasonLabel, undefined);
+    }
   };
 
   return (

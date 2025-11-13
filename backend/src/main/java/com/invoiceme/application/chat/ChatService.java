@@ -871,12 +871,12 @@ public class ChatService {
             totalInvoiced,
             totalPaid,
             totalOutstanding,
-            latestInvoice.isPresent() ? 
-                String.format("%s on %s", latestInvoice.get().getInvoiceNumber(), latestInvoice.get().getCreatedAt().toLocalDate()) : 
-                "None",
-            latestPayment.isPresent() ? 
-                String.format("$%.2f on %s", latestPayment.get().getPaymentAmount(), latestPayment.get().getPaymentDate()) : 
-                "None"
+            latestInvoice.map(inv ->
+                String.format("%s on %s", inv.getInvoiceNumber(), inv.getCreatedAt().toLocalDate()))
+                .orElse("None"),
+            latestPayment.map(pmt ->
+                String.format("$%.2f on %s", pmt.getPaymentAmount(), pmt.getPaymentDate()))
+                .orElse("None")
         );
         
         response.setResponse(responseMessage);
@@ -1034,8 +1034,9 @@ public class ChatService {
             ));
             return response;
         }
-        
-        Invoice invoice = invoiceOpt.get();
+
+        Invoice invoice = invoiceOpt.orElseThrow(() ->
+            new IllegalStateException("Invoice should exist but was not found"));
         List<Payment> payments = paymentRepository.findByInvoiceId(invoice.getId());
         
         String statusInfo = String.format("Status: %s", invoice.getStatus());

@@ -1,13 +1,13 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { AppLayout } from '@/components/AppLayout';
 import { Card } from '@/components/ui/Card';
 import { InvoiceForm } from '@/components/invoices/InvoiceForm';
 import { createInvoice } from '@/lib/api/invoices';
 
-export default function NewInvoicePage() {
+function NewInvoicePageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const customerId = searchParams.get('customerId') || undefined;
@@ -43,5 +43,13 @@ export default function NewInvoicePage() {
         />
       </div>
     </AppLayout>
+  );
+}
+
+export default function NewInvoicePage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <NewInvoicePageContent />
+    </Suspense>
   );
 }

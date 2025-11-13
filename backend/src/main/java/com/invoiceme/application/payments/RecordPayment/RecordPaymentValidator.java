@@ -51,7 +51,8 @@ public class RecordPaymentValidator {
             if (invoiceOpt.isEmpty()) {
                 errors.add("Invoice with ID " + command.getInvoiceId() + " does not exist");
             } else {
-                Invoice invoice = invoiceOpt.get();
+                Invoice invoice = invoiceOpt.orElseThrow(() ->
+                    new IllegalStateException("Invoice should exist but was not found"));
 
                 // Check invoice is not cancelled
                 if (invoice.getStatus() == InvoiceStatus.CANCELLED) {

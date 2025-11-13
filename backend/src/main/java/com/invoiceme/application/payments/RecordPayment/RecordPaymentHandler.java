@@ -49,7 +49,8 @@ public class RecordPaymentHandler {
         // Check idempotency: if payment already exists with this ID, return existing payment ID
         Optional<Payment> existingPayment = paymentRepository.findById(command.getId());
         if (existingPayment.isPresent()) {
-            return existingPayment.get().getId();
+            return existingPayment.orElseThrow(() ->
+                new IllegalStateException("Payment should exist but was not found")).getId();
         }
 
         // Fetch invoice

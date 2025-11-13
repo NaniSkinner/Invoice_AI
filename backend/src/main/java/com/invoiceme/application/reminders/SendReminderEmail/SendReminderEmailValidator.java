@@ -50,7 +50,8 @@ public class SendReminderEmailValidator {
             return errors; // Early return if invoice doesn't exist
         }
 
-        Invoice invoice = invoiceOpt.get();
+        Invoice invoice = invoiceOpt.orElseThrow(() ->
+            new IllegalStateException("Invoice should exist but was not found"));
 
         // Validate invoice status
         if (invoice.getStatus() == InvoiceStatus.DRAFT) {

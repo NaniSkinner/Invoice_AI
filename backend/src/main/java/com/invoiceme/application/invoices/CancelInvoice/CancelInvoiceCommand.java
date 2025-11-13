@@ -1,5 +1,7 @@
 package com.invoiceme.application.invoices.CancelInvoice;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -9,7 +11,7 @@ import java.util.UUID;
  * Transitions invoice to CANCELLED status.
  */
 public class CancelInvoiceCommand {
-
+    @NotNull
     private UUID invoiceId;
     private String cancellationReason;
 
@@ -23,11 +25,12 @@ public class CancelInvoiceCommand {
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getInvoiceId() {
         return invoiceId;
     }
 
-    public void setInvoiceId(UUID invoiceId) {
+    public void setInvoiceId(@NotNull UUID invoiceId) {
         this.invoiceId = invoiceId;
     }
 

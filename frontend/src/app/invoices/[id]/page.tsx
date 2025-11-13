@@ -182,7 +182,8 @@ export default function InvoiceDetailPage() {
     setIsCancelModalOpen(true);
   };
 
-  const handleCancelReasonSubmit = (reasonCode: string, reasonText: string) => {
+  const handleCancelReasonSubmit = (reason: string, customReason?: string): void => {
+    const reasonText = customReason ?? reason;
     setCancellationReason(reasonText);
     setIsCancelModalOpen(false);
 

@@ -1,5 +1,7 @@
 package com.invoiceme.application.customers.UpdateCustomer;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -8,7 +10,7 @@ import java.util.UUID;
  * This is a write operation in the CQRS pattern.
  */
 public class UpdateCustomerCommand {
-
+    @NotNull
     private UUID customerId;
     private String businessName;
     private String contactName;
@@ -33,11 +35,12 @@ public class UpdateCustomerCommand {
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(UUID customerId) {
+    public void setCustomerId(@NotNull UUID customerId) {
         this.customerId = customerId;
     }
 

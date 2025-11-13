@@ -1,5 +1,7 @@
 package com.invoiceme.application.invoices.CreateInvoice;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -12,7 +14,7 @@ import java.util.UUID;
  * This is a write operation in the CQRS pattern.
  */
 public class CreateInvoiceCommand {
-
+    @NotNull
     private UUID customerId;
     private LocalDate issueDate;
     private LocalDate dueDate;
@@ -36,11 +38,12 @@ public class CreateInvoiceCommand {
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(UUID customerId) {
+    public void setCustomerId(@NotNull UUID customerId) {
         this.customerId = customerId;
     }
 

@@ -9,7 +9,11 @@
       "Bash(find:*)",
       "Bash(tree:*)",
       "Bash(mvn spring-boot:run:*)",
-      "Bash(python3:*)"
+      "Bash(python3:*)",
+      "Bash(mvn compile:*)",
+      "Bash(mvn test:*)",
+      "Bash(cat:*)",
+      "Bash(npm run build:*)"
     ],
     "deny": [],
     "ask": []

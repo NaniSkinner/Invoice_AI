@@ -1,5 +1,7 @@
 package com.invoiceme.application.customers.DeleteCustomer;
 
+import jakarta.validation.constraints.NotNull;
+
 import java.util.Objects;
 import java.util.UUID;
 
@@ -9,23 +11,24 @@ import java.util.UUID;
  * Performs a soft delete by setting the customer's active flag to false.
  */
 public class DeleteCustomerCommand {
-
+    @NotNull
     private UUID customerId;
 
     // Constructors
     public DeleteCustomerCommand() {
     }
 
-    public DeleteCustomerCommand(UUID customerId) {
+    public DeleteCustomerCommand(@NotNull UUID customerId) {
         this.customerId = customerId;
     }
 
     // Getters and Setters
+    @NotNull
     public UUID getCustomerId() {
         return customerId;
     }
 
-    public void setCustomerId(UUID customerId) {
+    public void setCustomerId(@NotNull UUID customerId) {
         this.customerId = customerId;
     }
 
