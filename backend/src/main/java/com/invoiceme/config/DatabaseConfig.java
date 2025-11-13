@@ -39,8 +39,14 @@ public class DatabaseConfig {
                 String normalizedUrl = databaseUrl.replace("postgresql://", "postgres://");
                 URI dbUri = new URI(normalizedUrl);
 
+                // Get port, default to 5432 if not specified
+                int port = dbUri.getPort();
+                if (port == -1) {
+                    port = 5432; // PostgreSQL default port
+                }
+
                 // Build JDBC URL
-                jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ":" + dbUri.getPort() + dbUri.getPath();
+                jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ":" + port + dbUri.getPath();
 
                 // Add SSL mode if connecting to Render/Railway (external connections)
                 if (dbUri.getHost().contains("render.com") ||
@@ -64,7 +70,8 @@ public class DatabaseConfig {
                 System.out.println("✅ Successfully parsed DATABASE_URL");
                 System.out.println("   JDBC URL: " + jdbcUrl);
                 System.out.println("   Database: " + dbUri.getPath().substring(1));
-                System.out.println("   Host: " + dbUri.getHost() + ":" + dbUri.getPort());
+                System.out.println("   Host: " + dbUri.getHost());
+                System.out.println("   Port: " + port + (dbUri.getPort() == -1 ? " (defaulted)" : ""));
                 System.out.println("   Username: " + username);
 
             } catch (URISyntaxException e) {
