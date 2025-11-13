@@ -1,0 +1,27 @@
+services:
+  # Backend API Service
+  - type: web
+    name: invoiceme-backend
+    env: java
+    region: oregon
+    plan: free
+    buildCommand: cd backend && mvn clean package -DskipTests
+    startCommand: java -jar backend/target/*.jar
+    healthCheckPath: /actuator/health
+    envVars:
+      - key: JAVA_OPTS
+        value: -Xmx512m -Xms256m
+      - key: OPENAI_API_KEY
+        sync: false  # Add this manually in Render dashboard
+      - key: JWT_SECRET
+        generateValue: true
+      - key: CORS_ORIGINS
+        sync: false  # Update this with your frontend URL after deployment
+      # Database connection: Link your PostgreSQL database in Render dashboard
+      # Render will automatically provide: PGHOST, PGPORT, PGDATABASE, PGUSER, PGPASSWORD
+
+databases:
+  - name: invoiceme-db
+    databaseName: invoiceme
+    plan: free
+    region: oregon
