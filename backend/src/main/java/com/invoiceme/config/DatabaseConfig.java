@@ -15,7 +15,7 @@ import java.net.URISyntaxException;
  * Database configuration that handles multiple database URL formats.
  * Supports:
  * - Standard JDBC URLs: jdbc:postgresql://host:port/database
- * - Render/Railway/Heroku URLs: postgres://user:password@host:port/database
+ * - Render/Railway/Heroku URLs: postgres://user:password@host:port/database OR postgresql://user:password@host:port/database
  *
  * This runs BEFORE Flyway initialization to ensure the URL is properly formatted.
  */
@@ -32,10 +32,12 @@ public class DatabaseConfig {
         String username = null;
         String password = null;
 
-        // Check if DATABASE_URL is set and in postgres:// format
-        if (databaseUrl != null && databaseUrl.startsWith("postgres://")) {
+        // Check if DATABASE_URL is set and in postgres:// or postgresql:// format
+        if (databaseUrl != null && (databaseUrl.startsWith("postgres://") || databaseUrl.startsWith("postgresql://"))) {
             try {
-                URI dbUri = new URI(databaseUrl);
+                // Normalize to postgres:// for URI parsing
+                String normalizedUrl = databaseUrl.replace("postgresql://", "postgres://");
+                URI dbUri = new URI(normalizedUrl);
 
                 // Build JDBC URL
                 jdbcUrl = "jdbc:postgresql://" + dbUri.getHost() + ":" + dbUri.getPort() + dbUri.getPath();
